@@ -33,5 +33,27 @@
     <ClCompile Include="..\Source\imgui-SFML.cpp">
       <Filter>IMGUI</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\GameGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\GameRequestBoard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\GameGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\renderFeedback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\GameCell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\GameRequestBoard.h">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

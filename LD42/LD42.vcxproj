@@ -145,8 +145,18 @@
     <ClCompile Include="..\imgui\imgui.cpp" />
     <ClCompile Include="..\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\Source\GameGrid.cpp" />
+    <ClCompile Include="..\Source\GameRequestBoard.cpp" />
     <ClCompile Include="..\Source\imgui-SFML.cpp" />
     <ClCompile Include="..\Source\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\GameCell.h" />
+    <ClInclude Include="..\Source\GameGrid.h" />
+    <ClInclude Include="..\Source\renderFeedback.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\GameRequestBoard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
