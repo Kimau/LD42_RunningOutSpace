@@ -8,8 +8,9 @@ GameRequestBoard::GameRequestBoard(unsigned int seed)
 {
 	background_tex.loadFromFile("request.png");
 	background.setTexture(background_tex);
-	prog_counter = 1;
+	gradient_tex.loadFromFile("redgrad.png");
 
+	prog_counter = 1;
 	randgen.seed(seed);
 }
 
@@ -38,15 +39,14 @@ void GameRequestBoard::draw(sf::RenderTarget& target, sf::RenderStates states) c
 	static float yStart = 82.f;
 	static float yStep = 28.0f;
 	static float yPad = 16.0f;
-	static float usedWidthPer = 0.69f;
+	static float usedWidthPer = 0.65f;
 
-/*
-
-	ImGui::DragFloat("xStart", &xStart);
-	ImGui::DragFloat("yStart", &yStart);
-	ImGui::DragFloat("yStep", &yStep);
-	ImGui::DragFloat("yPad", &yPad);
-	ImGui::DragFloat("usedWidthPer", &usedWidthPer, 0.01f);*/
+	/*
+		ImGui::DragFloat("xStart", &xStart);
+		ImGui::DragFloat("yStart", &yStart);
+		ImGui::DragFloat("yStep", &yStep);
+		ImGui::DragFloat("yPad", &yPad);
+		ImGui::DragFloat("usedWidthPer", &usedWidthPer, 0.01f);*/
 
 	float maxWidth = background_tex.getSize().x * usedWidthPer;
 	float y = yStart;
@@ -109,8 +109,39 @@ void GameRequestBoard::draw(sf::RenderTarget& target, sf::RenderStates states) c
 				progRect.setOutlineThickness(borderThick);
 			}
 
-			progRect.setPosition(sf::Vector2f(xStart + i * (progRect.getSize().x - borderThick), y));
+			progRect.setPosition(sf::Vector2f(xStart + i * (progRect.getSize().x + borderThick), y));
 			target.draw(progRect, states);
+		}
+
+		{
+			float timeOut = r.timer.getElapsedTime() / r.expiryTime;
+			sf::VertexArray gradient = sf::VertexArray(sf::PrimitiveType::Quads, 3 * 4);
+
+			float xa = xStart + borderThick;
+			float xd = xStart + (xWidth + borderThick) * r.numcells - borderThick * 2.0f;
+			float xb = std::min(xd, std::max(xa, xa + (xd - xa)* timeOut - 1.0f));
+			float xc = std::min(xd, std::max(xa, xa + (xd - xa) * timeOut + 1.0f));
+
+			sf::Color redCol = { 255, 0, 0, 200 };
+			sf::Color blackCol = { 0,0,0,200 };
+
+			int i = 0;
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xa, y + yStep }, redCol, sf::Vector2f{ 0,0 });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xb, y + yStep }, redCol, sf::Vector2f{ 0,0 });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xb, y + yStep + 5.0f }, redCol, sf::Vector2f{ 0,0.99f });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xa, y + yStep + 5.0f }, redCol, sf::Vector2f{ 0,0.99f });
+
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xb,y + yStep }, redCol, sf::Vector2f{ 0,0 });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xc,y + yStep }, blackCol, sf::Vector2f{ 0.99f,0 });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xc,y + yStep + 5.0f }, blackCol, sf::Vector2f{ 0.99f,0.99f });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xb,y + yStep + 5.0f }, redCol, sf::Vector2f{ 0,0.99f });
+
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xc, y + yStep }, blackCol, sf::Vector2f{ 0.99f,0 });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xd, y + yStep }, blackCol, sf::Vector2f{ 0.99f,0 });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xd, y + yStep + 5.0f }, blackCol, sf::Vector2f{ 0.99f,0.99f });
+			gradient[i++] = sf::Vertex(sf::Vector2f{ xc, y + yStep + 5.0f }, blackCol, sf::Vector2f{ 0.99f,0.99f });
+
+			target.draw(gradient, states);
 		}
 
 		y += yStep + yPad;

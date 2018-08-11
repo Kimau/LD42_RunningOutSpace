@@ -22,6 +22,7 @@ class GameRequestBoard : public sf::Drawable, public sf::Transformable {
 public:
 	GameRequestBoard(unsigned int seed);
 
+	sf::Texture gradient_tex;
 	sf::Texture background_tex;
 	sf::Sprite background;
 	std::vector<GameRequest> requests;
