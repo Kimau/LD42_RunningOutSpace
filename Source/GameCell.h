@@ -6,7 +6,6 @@ struct GameCell
 {
 	sf::Color color;
 	int prog_id;
-	int offset;
 
 	GameCell() {
 		color = sf::Color::Transparent;
@@ -31,5 +30,7 @@ struct GameRequest
 		cellsplaced = 0;
 		expiryTime = time_max;
 	}
+
+	float GetProgressAsPer() const { return timer.getElapsedTime() / expiryTime; }
 };
 

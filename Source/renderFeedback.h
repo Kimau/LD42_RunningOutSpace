@@ -9,8 +9,16 @@
 
 struct RenderFeedback {
 	sf::Vector2f cursorPos;
+	sf::Vector2f dragStartPos;
 	sf::Vector2i hover_cell;
+	sf::Vector2i drag_cells;
 	const sf::Drawable* hovered;
+	const sf::Drawable * dragged = false;
+};
+
+struct LogicFeedback {
+	std::vector<int> del_progid;
+	std::vector<int> explode_progid;
 };
 
 extern RenderFeedback g_renderFeedback;

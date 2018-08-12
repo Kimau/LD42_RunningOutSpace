@@ -130,13 +130,54 @@ int WinMain()
 
 		////////////////////////////////////////////////////////////////////////// GAME LOGIC UPDATE
 		{
+			LogicFeedback logicfb;
+
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-				if (g_renderFeedback.hovered == &ggrid) {
-					ggrid.selected = g_renderFeedback.hover_cell;
+				
+				if (g_renderFeedback.dragged == nullptr) {
+					// Do selection
+					if (g_renderFeedback.hovered == &ggrid) {
+						ggrid.selected = g_renderFeedback.hover_cell;
+					}
+					else {
+						ggrid.selected = sf::Vector2i(-1, -1);
+					}
+
+					if (g_renderFeedback.hovered == &grequest) {
+						grequest.selected = g_renderFeedback.hover_cell;
+					}
+					else {
+						grequest.selected = sf::Vector2i(-1, -1);
+					}
+
+					g_renderFeedback.dragStartPos = g_renderFeedback.cursorPos;
+					g_renderFeedback.dragged = g_renderFeedback.hovered;
+					g_renderFeedback.drag_cells = g_renderFeedback.hover_cell;
+				}				
+			}
+			else {
+				if (g_renderFeedback.dragged != nullptr) {
+					if (g_renderFeedback.hovered == &ggrid) {
+						if (g_renderFeedback.dragged == &grequest) {
+							GameRequest& req = grequest.GetRequest(g_renderFeedback.drag_cells.y);
+							int dropped = ggrid.Drop(req);
+							if (dropped > 0) {
+								ggrid.RebuildVerts();
+								grequest.Placed(req.prog_id, dropped);
+							}
+						}
+					}
+
+					g_renderFeedback.dragged = nullptr;
+					g_renderFeedback.drag_cells = sf::Vector2i(-1, -1);
 				}
 			}
 
-		}
+			grequest.UpdateRequests(logicfb);
+			ggrid.Update(logicfb);
+		} 
+
+		
 
 		//////////////////////////////////////////////////////////////////////////   IMGUI UPDATE
 		{

@@ -15,6 +15,7 @@
 #include <string>
 
 #include "GameCell.h"
+#include "renderFeedback.h"
 
 class GameGrid : public sf::Drawable, public sf::Transformable {
 public:
@@ -26,6 +27,9 @@ public:
 
 	sf::Vector2f GetCellTopLeft(sf::Vector2i pos) const;
 	sf::Vector2f GetCellCenter(sf::Vector2i pos) const;
+
+	int Drop(GameRequest& req);
+	void Update(LogicFeedback& logicfb);
 
 	std::vector<GameCell> cellData;
 	sf::Vector2i numCells;

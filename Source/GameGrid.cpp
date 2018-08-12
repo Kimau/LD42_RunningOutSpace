@@ -80,6 +80,65 @@ sf::Vector2f GameGrid::GetCellCenter(sf::Vector2i pos) const
 	return GetCellTopLeft(pos) + (cell_size + sf::Vector2f{ border_size, border_size }) * 0.5f;
 }
 
+int GameGrid::Drop(GameRequest& req)
+{
+	if (g_renderFeedback.hovered != this)
+		return -1;
+
+	int placedCells = 0;
+
+	const int offset = g_renderFeedback.hover_cell.y * numCells.x + g_renderFeedback.hover_cell.x;
+	const int limit = (offset + req.numcells - req.cellsplaced);
+
+	for (int i = offset; i < limit; i++) {
+		if (i >= cellData.size())
+			return placedCells;
+		
+		if (cellData[i].prog_id >= 0)
+			return placedCells;
+
+		cellData[i].prog_id = req.prog_id;
+		cellData[i].color = req.color;
+		cellData[i].offset = req.cellsplaced++;
+	}
+
+	return placedCells;
+}
+
+void GameGrid::Update(LogicFeedback& logicfb)
+{
+	for (GameCell& gc : cellData) {
+		if(gc.prog_id <0)
+			continue;
+
+		for (int pid : logicfb.explode_progid)
+			if (pid == gc.prog_id) {
+				gc.color = sf::Color{ 100,100,100 };
+				goto end_of_cell_loop;				// -----------> GOTO
+			}
+
+		for (int pid : logicfb.del_progid)
+			if (pid == gc.prog_id) {
+				gc.prog_id = -1;
+				gc.color = sf::Color::Transparent;
+				goto end_of_cell_loop;				// -----------> GOTO
+			}
+
+	end_of_cell_loop:
+		continue;
+	}
+
+	int i = 0;
+	for (GameCell& gc : cellData) {
+		sf::Color cc = gc.color;
+
+		cell_verts[i++].color = cc;
+		cell_verts[i++].color = cc;
+		cell_verts[i++].color = cc;
+		cell_verts[i++].color = cc;
+	}
+}
+
 void GameGrid::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();
