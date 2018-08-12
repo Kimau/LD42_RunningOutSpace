@@ -30,7 +30,7 @@ void GameRequestBoard::SpawnNewRequest(const GameProgram& srcProg)
 	GameRequest r = GameRequest(
 		srcProg.prog_id, 
 		srcProg.cells_requested, 
-		sf::seconds(1.0f + srcProg.cells_requested * (0.5f + 4.0f * RandToSinRange(randgen())))
+		sf::seconds(3.0f + srcProg.cells_requested * (0.5f + 4.0f * RandToSinRange(randgen())))
 	);
 
 	requests.push_back(r);

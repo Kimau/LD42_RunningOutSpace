@@ -191,7 +191,7 @@ bool MemSeek(int pid, int offset, sf::Vector2i& gridPos) {
 		}
 	}
 
-	IM_ASSERT(false);
+	// IM_ASSERT(false);
 	return true; // To avoid lock up
 }
 
@@ -212,7 +212,7 @@ bool MemRead(int pid, int offset, sf::Vector2i& gridPos) {
 		}
 	}
 
-	IM_ASSERT(false);
+	// IM_ASSERT(false);
 	return true; // To avoid lock up
 }
 
@@ -395,7 +395,7 @@ int WinMain()
 				if (progs.size() < 15)
 					seconds_till_prog_Spawn = 0.5f;
 				else 
-					seconds_till_prog_Spawn = 15.0f + 15.0f * RandToSinRange(game_rand());
+					seconds_till_prog_Spawn = 1.0f + 5.0f * RandToSinRange(game_rand());
 
 				GameProgram newProg;
 				newProg.prog_id = prog_id_counter++;
@@ -427,9 +427,15 @@ int WinMain()
 					TermLine line = TermLine("", runner->color);
 
 					if (prog_todo.empty()) {
-						logicfb.wipe_progid.push_back(running_pid);
-						sprintf_s(line.str, "#%d > exit!", running_pid);
-						termlines.push_front(line);
+						if (runner->cells_requested <= 0) {
+							logicfb.wipe_progid.push_back(running_pid);
+							sprintf_s(line.str, "#%d > exit!", running_pid);
+							termlines.push_front(line);
+						}
+						else {
+							sprintf_s(line.str, "#%d > requested more memory", running_pid);
+							termlines.push_front(line);
+						}
 
 						running_pid = -1;
 						garrow.visible = false;
@@ -592,7 +598,7 @@ int WinMain()
 			for (int pid : logicfb.explode_progid) {
 				GameProgram newProg;
 
-				auto wipe = std::remove_if(progs.begin(), progs.end(), [&](GameProgram& p) -> bool {
+				auto explode = std::remove_if(progs.begin(), progs.end(), [&](GameProgram& p) -> bool {
 					if (p.prog_id != pid)
 						return false;
 
@@ -609,8 +615,8 @@ int WinMain()
 					return true;
 				});
 
-				if (wipe != progs.end()) {
-					progs.erase(wipe);
+				if (explode != progs.end()) {
+					progs.erase(explode);
 
 					LaunchProg(newProg);
 				}
@@ -635,6 +641,26 @@ int WinMain()
 					g_renderFeedback.drag_cells = sf::Vector2i(-1, -1);
 				}
 			}
+
+			for (int pid : logicfb.wipe_progid) {
+
+				auto wipe = std::remove_if(progs.begin(), progs.end(), [&](GameProgram& p) -> bool {
+					if (p.prog_id != pid)
+						return false;
+					
+					return true;
+				});
+
+				if (wipe != progs.end()) {
+					progs.erase(wipe);
+				}
+
+				if (pid == g_renderFeedback.prog_hover_prev) {
+					g_renderFeedback.dragged = nullptr;
+					g_renderFeedback.drag_cells = sf::Vector2i(-1, -1);
+				}
+			}
+
 		}
 
 
@@ -665,8 +691,9 @@ int WinMain()
 
 
 		//////////////////////////////////////////////////////////////////////////   IMGUI UPDATE
-		{
-			ImGui::SFML::Update(window, deltaClock.restart());
+		ImGui::SFML::Update(window, deltaClock.restart());
+		if(false)
+		{	
 			ImGui::Begin("Sample window"); // begin window
 
 										   // Background color edit
