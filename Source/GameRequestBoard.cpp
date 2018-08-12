@@ -5,11 +5,15 @@
 #include <time.h>
 
 
+
 static float xStart = 70.0;
 static float yStart = 82.f;
 static float yStep = 28.0f;
 static float yPad = 16.0f;
 static float usedWidthPer = 0.65f;
+
+static sf::Texture gradient_tex;
+static sf::Texture background_tex;
 
 GameRequestBoard::GameRequestBoard(unsigned int seed)
 {
@@ -37,15 +41,6 @@ GameRequest* GameRequestBoard::GetRequest(unsigned int y)
 	if (y >= requests.size()) 
 		return nullptr; 
 	return &requests[y];
-}
-
-void GameRequestBoard::Placed(int prog_id, int dropped)
-{
-	for (GameRequest& req : requests) {
-		if (prog_id == req.prog_id) {
-			req.cellsplaced += dropped;
-		}
-	}
 }
 
 void GameRequestBoard::UpdateRequests(LogicFeedback& logicfb)
@@ -119,7 +114,20 @@ void GameRequestBoard::draw(sf::RenderTarget& target, sf::RenderStates states) c
 	float yDrag = y;
 
 	////////////////////////////////////////////////////////////////////////// Draw Programs
-	for (int rOffset = 0; rOffset < requests.size(); ++rOffset)
+	int maxToShow = int(requests.size());
+	if (maxToShow > 10) {
+		sf::Text warning = sf::Text("TOO MANY REQUEST", g_console_font, 30);
+		warning.setFillColor(sf::Color::Red);
+		warning.setPosition(
+			background_tex.getSize().x * 0.5f - warning.getLocalBounds().width * 0.5f, 
+			float(background_tex.getSize().y) - 100.0f
+		);
+		target.draw(warning, states);
+
+		maxToShow = 10;
+	}
+
+	for (int rOffset = 0; rOffset < maxToShow; ++rOffset)
 	{
 		if ((g_renderFeedback.dragged == this) && (g_renderFeedback.drag_cells.y == rOffset)) {
 			yDrag = y;

@@ -7,6 +7,23 @@ struct TermLine
 {
 	sf::Color color;
 	char str[100];
+
+	TermLine(const char* str_in, sf::Color rawColor) {
+		strcpy_s(str, 100, str_in);
+		color = rawColor;
+		color.r = 128 + color.r / 2;
+		color.g = 128 + color.g / 2;
+		color.b = 128 + color.b / 2;
+	}
+};
+
+enum ProgInstructions
+{
+	ReadMem,
+	FreeMem,
+	ReqMem,
+	Execute,
+	NOOF_ProgInstructions
 };
 
 struct GameCell

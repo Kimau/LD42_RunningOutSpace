@@ -20,10 +20,8 @@
 
 class GameRequestBoard : public sf::Drawable, public sf::Transformable {
 public:
-	GameRequestBoard(unsigned int seed);
+	GameRequestBoard(unsigned int seed = 0);
 
-	sf::Texture gradient_tex;
-	sf::Texture background_tex;
 	sf::Sprite background;
 	std::vector<GameRequest> requests;
 	std::mt19937 randgen;
@@ -32,7 +30,6 @@ public:
 
 	void SpawnNewRequest(const GameProgram& srcProg);
 	GameRequest* GetRequest(unsigned int y);
-	void Placed(int prog_id, int dropped);
 	void UpdateRequests(LogicFeedback& logicfb);
 
 private:

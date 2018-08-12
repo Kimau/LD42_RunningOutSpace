@@ -10,6 +10,7 @@
 struct RenderFeedback {
 	int prog_hovered = -1;
 	int prog_hover_prev = -1;
+	sf::Vector3f execPos;
 	sf::Vector2f cursorPos;
 	sf::Vector2f dragStartPos;
 	sf::Vector2i hover_cell;

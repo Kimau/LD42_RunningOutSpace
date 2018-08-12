@@ -7,6 +7,15 @@ static float margin_bot = 40.0f;
 static float margin_left = 37.0f;
 static float margin_right = 42.0f;
 
+static sf::Texture drive_tex;
+
+GameGrid::GameGrid()
+{
+	GameGrid(5, 5);
+}
+
+
+
 GameGrid::GameGrid(int w, int h)
 {
 	drive_tex.loadFromFile("drive.png");
@@ -117,6 +126,7 @@ int GameGrid::Drop(GameRequest& req)
 		cellData[i].prog_id = req.prog_id;
 		cellData[i].color = req.color;
 		cellData[i].offset = req.offset + req.cellsplaced++;
+		placedCells++;
 	}
 
 	return placedCells;

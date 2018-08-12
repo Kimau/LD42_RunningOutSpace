@@ -19,6 +19,7 @@
 
 class GameGrid : public sf::Drawable, public sf::Transformable {
 public:
+	GameGrid();
 	GameGrid(int w, int h);
 
 	void RebuildVerts();
@@ -44,7 +45,6 @@ public:
 	sf::VertexArray border_verts;
 	sf::VertexArray cell_verts;
 	sf::Sprite drive;
-	sf::Texture drive_tex;
 
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
