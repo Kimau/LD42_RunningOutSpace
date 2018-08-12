@@ -296,3 +296,7 @@ __pycache__/
 
 imgui.ini
 my_stdout.txt
+
+*.zip
+*.7z
+LD42-Kimau-Submit
