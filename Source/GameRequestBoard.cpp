@@ -17,17 +17,26 @@ GameRequestBoard::GameRequestBoard(unsigned int seed)
 	background.setTexture(background_tex);
 	gradient_tex.loadFromFile("redgrad.png");
 
-	prog_counter = 1;
 	selected = sf::Vector2i(-1, -1);
 	randgen.seed(seed);
 }
 
-void GameRequestBoard::SpawnNewRequest()
+void GameRequestBoard::SpawnNewRequest(const GameProgram& srcProg)
 {
-	int size = 2 + randgen() % 20;
-	GameRequest r = GameRequest(prog_counter++, size, sf::seconds(1.0f + size * (0.5f + 4.0f * sinf((randgen() % 31415) * 0.0001f))));
+	GameRequest r = GameRequest(
+		srcProg.prog_id, 
+		srcProg.cells_requested, 
+		sf::seconds(1.0f + srcProg.cells_requested * (0.5f + 4.0f * RandToSinRange(randgen())))
+	);
 
 	requests.push_back(r);
+}
+
+GameRequest* GameRequestBoard::GetRequest(unsigned int y)
+{
+	if (y >= requests.size()) 
+		return nullptr; 
+	return &requests[y];
 }
 
 void GameRequestBoard::Placed(int prog_id, int dropped)
@@ -39,7 +48,7 @@ void GameRequestBoard::Placed(int prog_id, int dropped)
 	}
 }
 
-void GameRequestBoard::UpdateRequests(LogicFeedback logicfb)
+void GameRequestBoard::UpdateRequests(LogicFeedback& logicfb)
 {
 	std::vector<int> removeReq;
 
@@ -51,7 +60,7 @@ void GameRequestBoard::UpdateRequests(LogicFeedback logicfb)
 				goto end_of_request_loop;				// -----------> GOTO
 			}
 
-		for (int pid : logicfb.del_progid)
+		for (int pid : logicfb.placed_progid)
 			if (pid == req.prog_id) {
 				removeReq.push_back(req.prog_id);
 				goto end_of_request_loop;				// -----------> GOTO
@@ -59,7 +68,7 @@ void GameRequestBoard::UpdateRequests(LogicFeedback logicfb)
 
 		if (req.cellsplaced >= req.numcells) {
 			removeReq.push_back(req.prog_id);
-			logicfb.del_progid.push_back(req.prog_id);
+			logicfb.placed_progid.push_back(req.prog_id);
 			goto end_of_request_loop;					// -----------> GOTO
 		}
 
@@ -75,18 +84,13 @@ void GameRequestBoard::UpdateRequests(LogicFeedback logicfb)
 	}
 
 	if (removeReq.size() > 0) {
-		int i = requests.size();
 		requests.erase(std::remove_if(requests.begin(), requests.end(), [&](GameRequest& req) -> bool {
 			for (int pid : removeReq)
 				if (pid == req.prog_id)
 					return true;
 			return false;
 		}));
-
-		IM_ASSERT(i != requests.size());
 	}
-
-	// TODO :: Scanning Req
 }
 
 void GameRequestBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -135,6 +139,9 @@ void GameRequestBoard::draw(sf::RenderTarget& target, sf::RenderStates states) c
 
 void GameRequestBoard::DrawRequest(sf::RenderTarget &target, sf::RenderStates states, int rOffset, float maxWidth, float y, sf::Vector2f &mouseInLocal) const
 {
+	if (rOffset >= requests.size())
+		return;
+
 	sf::RectangleShape progRect;
 	const GameRequest& r = requests[rOffset];
 	float borderThick = 2.0f;
@@ -142,6 +149,7 @@ void GameRequestBoard::DrawRequest(sf::RenderTarget &target, sf::RenderStates st
 
 
 	bool witnessMeForIamselected = false;
+	bool myprogIsHighlighted = g_renderFeedback.prog_hover_prev == r.prog_id;
 
 	if ((g_renderFeedback.dragged == this) && (g_renderFeedback.drag_cells.y == rOffset)) {
 		states = sf::RenderStates::Default;
@@ -156,6 +164,7 @@ void GameRequestBoard::DrawRequest(sf::RenderTarget &target, sf::RenderStates st
 
 		if ((mouseInLocal.x > xStart) && (mouseInLocal.x < (xStart + maxWidth))) {
 			g_renderFeedback.hover_cell.x = std::max(0, std::min(r.numcells - 1, int((mouseInLocal.x - xStart) / (xWidth + borderThick))));
+			g_renderFeedback.prog_hovered = r.prog_id;
 		}
 	}
 
@@ -171,7 +180,7 @@ void GameRequestBoard::DrawRequest(sf::RenderTarget &target, sf::RenderStates st
 		sf::Color col = r.color;
 		if (selected.y == rOffset)
 			col = sf::Color::White;
-		else if (witnessMeForIamselected)
+		else if (witnessMeForIamselected || myprogIsHighlighted)
 		{
 			col.r += 50; col.g += 50; col.b += 50;
 		}
@@ -209,7 +218,7 @@ void GameRequestBoard::DrawRequest(sf::RenderTarget &target, sf::RenderStates st
 			sf::Color outline = r.color;
 
 			outline.r /= 5; outline.g /= 5; outline.b /= 5;
-			if (witnessMeForIamselected) {
+			if (witnessMeForIamselected || myprogIsHighlighted) {
 				outline.r += 50; outline.g += 50; outline.b += 50;
 			}
 

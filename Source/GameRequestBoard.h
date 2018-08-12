@@ -27,14 +27,13 @@ public:
 	sf::Sprite background;
 	std::vector<GameRequest> requests;
 	std::mt19937 randgen;
-	int prog_counter;
 	sf::Vector2i selected;
 	sf::Vector2i dragging;
 
-	void SpawnNewRequest();
-	GameRequest& GetRequest(int y) { return requests[y]; }
+	void SpawnNewRequest(const GameProgram& srcProg);
+	GameRequest* GetRequest(unsigned int y);
 	void Placed(int prog_id, int dropped);
-	void UpdateRequests(LogicFeedback logicfb);
+	void UpdateRequests(LogicFeedback& logicfb);
 
 private:
 

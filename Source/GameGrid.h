@@ -19,11 +19,11 @@
 
 class GameGrid : public sf::Drawable, public sf::Transformable {
 public:
-	GameGrid(int w, int h, sf::Vector2f cellSize_);
+	GameGrid(int w, int h);
 
 	void RebuildVerts();
 
-	sf::Vector2f TotalSize() const;
+	sf::Rect<float> InteractBounds() const;
 
 	sf::Vector2f GetCellTopLeft(sf::Vector2i pos) const;
 	sf::Vector2f GetCellCenter(sf::Vector2i pos) const;
@@ -40,9 +40,12 @@ public:
 
 	sf::Vector2i selected;
 
-private:
+
 	sf::VertexArray border_verts;
 	sf::VertexArray cell_verts;
+	sf::Sprite drive;
+	sf::Texture drive_tex;
 
+private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
